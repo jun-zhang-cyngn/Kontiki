@@ -35,7 +35,7 @@ class LiDARExtrinsicsRange {
   template<typename TrajectoryModel, typename T>
   T Error(const type::Trajectory<TrajectoryModel, T> &trajectory, const type::LiDAR<LiDARModel, T> &lidar) const {
 
-    Eigen::Matrix<T, 1, 1> ref;
+    Eigen::Matrix<double, 1, 1> ref;
     ref << translation_norm_;
     Eigen::Matrix<T, 1, 1> err_vector = ref -  Measure<TrajectoryModel, T>(trajectory, lidar);
     return err_vector.norm();
