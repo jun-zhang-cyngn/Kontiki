@@ -164,6 +164,36 @@ class SensorEntity : public type::Entity<ViewTemplate, MetaType, StoreType> {
       problem.SetParameterBlockConstant(pi_offset.data);
   }
 
+  void AddExtrinsicsCalibrationToProblem(ceres::Problem &problem,
+                    int extrinsics_type, // 0: both rotation and translation, 1: rotation, 2: translation 
+                    time_init_t times,
+                    MetaType &meta,
+                    std::vector<entity::ParameterInfo<double>> &parameters) const override {
+
+    std::cout << "AddExtrinsicsCalibrationToProblem: extrinsics_type " << extrinsics_type << "\n";
+
+    // Relative orientation q_ct
+    if(extrinsics_type == 0 || extrinsics_type == 1) {
+      auto pi_qct = this->pstore_->Parameter(0);
+      problem.AddParameterBlock(pi_qct.data, pi_qct.size, pi_qct.parameterization);
+      parameters.push_back(pi_qct);
+
+      if (relative_orientation_locked_)
+        problem.SetParameterBlockConstant(pi_qct.data);
+    }
+    
+    // Relative translation p_ct
+    if(extrinsics_type == 0 || extrinsics_type == 2) {
+      auto pi_pct = this->pstore_->Parameter(1);
+      problem.AddParameterBlock(pi_pct.data, pi_pct.size, pi_pct.parameterization);
+      parameters.push_back(pi_pct);
+
+      if (relative_position_locked_)
+        problem.SetParameterBlockConstant(pi_pct.data);
+    }
+  }
+
+
  protected:
   bool relative_position_locked_;
   bool relative_orientation_locked_;
