@@ -18,22 +18,27 @@ namespace measurements {
 
 template<typename LiDARModel>
 class LiDARExtrinsicsRange {
-  using Quat = Eigen::Quaternion<double>;
-//  Eigen::Quaternion<T>
+
  public:
   LiDARExtrinsicsRange(std::shared_ptr<LiDARModel> lidar, double t, double translation_norm)
     : lidar_(lidar), t(t), translation_norm_(translation_norm) {}
 
   template<typename TrajectoryModel, typename T>
-  double Measure(const type::Trajectory<TrajectoryModel, T> &trajectory,
+  Eigen::Matrix<T, 1, 1> Measure(const type::Trajectory<TrajectoryModel, T> &trajectory,
                                  const type::LiDAR<LiDARModel, T> &lidar) const {
     const Eigen::Matrix<T, 3, 1> p_L_I = lidar.relative_position();
-    return p_L_I.norm();
+    Eigen::Matrix<T, 1, 1> val;
+    val << p_L_I.norm();
+    return val;
   }
 
   template<typename TrajectoryModel, typename T>
   T Error(const type::Trajectory<TrajectoryModel, T> &trajectory, const type::LiDAR<LiDARModel, T> &lidar) const {
-    return std::fabs(translation_norm_ - Measure<TrajectoryModel, T>(trajectory, lidar));
+
+    Eigen::Matrix<T, 1, 1> ref;
+    ref << translation_norm_;
+    Eigen::Matrix<T, 1, 1> err_vector = ref -  Measure<TrajectoryModel, T>(trajectory, lidar);
+    return err_vector.norm();
   }
 
   // Measurement data
