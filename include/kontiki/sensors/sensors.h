@@ -168,7 +168,7 @@ class SensorEntity : public type::Entity<ViewTemplate, MetaType, StoreType> {
                     int extrinsics_type, // 0: both rotation and translation, 1: rotation, 2: translation 
                     time_init_t times,
                     MetaType &meta,
-                    std::vector<entity::ParameterInfo<double>> &parameters) const override {
+                    std::vector<entity::ParameterInfo<double>> &parameters) const {
 
     std::cout << "AddExtrinsicsCalibrationToProblem: extrinsics_type " << extrinsics_type << "\n";
 

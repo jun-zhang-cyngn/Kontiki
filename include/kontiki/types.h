@@ -28,12 +28,6 @@ class Entity : public entity::Entity<ViewTemplate, MetaType, StoreType> {
                             MetaType& meta,
                             std::vector<entity::ParameterInfo<double>> &parameters) const = 0;
 
-  virtual void AddExtrinsicsCalibrationToProblem(ceres::Problem &problem,
-                            int extrinsics_type,
-                            time_init_t times,
-                            MetaType& meta,
-                            std::vector<entity::ParameterInfo<double>> &parameters) const {};
-
 };
 
 } // namespace type
