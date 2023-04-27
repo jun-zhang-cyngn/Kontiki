@@ -21,24 +21,22 @@ class LiDARExtrinsicsRange {
 
  public:
   LiDARExtrinsicsRange(std::shared_ptr<LiDARModel> lidar, double t, double translation_norm)
-    : lidar_(lidar), t(t), translation_norm_(translation_norm) {}
+    : lidar_(lidar), t(t), translation_norm_(translation_norm) {
+      std::cout << "translation_norm is: " << translation_norm_ << "\n";
+    }
 
   template<typename TrajectoryModel, typename T>
-  Eigen::Matrix<T, 1, 1> Measure(const type::Trajectory<TrajectoryModel, T> &trajectory,
+  T Measure(const type::Trajectory<TrajectoryModel, T> &trajectory,
                                  const type::LiDAR<LiDARModel, T> &lidar) const {
     const Eigen::Matrix<T, 3, 1> p_L_I = lidar.relative_position();
     Eigen::Matrix<T, 1, 1> val;
-    val << p_L_I.norm();
-    return val;
+    val << p_L_I.norm() - translation_norm_;
+    return val.norm();
   }
 
   template<typename TrajectoryModel, typename T>
   T Error(const type::Trajectory<TrajectoryModel, T> &trajectory, const type::LiDAR<LiDARModel, T> &lidar) const {
-
-    Eigen::Matrix<double, 1, 1> ref;
-    ref << translation_norm_;
-    Eigen::Matrix<T, 1, 1> err_vector = ref -  Measure<TrajectoryModel, T>(trajectory, lidar);
-    return err_vector.norm();
+    return Measure<TrajectoryModel, T>(trajectory, lidar);
   }
 
   // Measurement data
@@ -79,7 +77,9 @@ class LiDARExtrinsicsRange {
 
     // Add trajectory to problem
     const int extrinsics_type = 2;
-    lidar_->AddExtrinsicsCalibrationToProblem(estimator.problem(), extrinsics_type, {{t,t}}, residual->lidar_meta, parameter_info);
+    // The below code somehow will crash the ceres solver
+    // lidar_->AddExtrinsicsCalibrationToProblem(estimator.problem(), extrinsics_type, {{t,t}}, residual->lidar_meta, parameter_info);
+    lidar_->AddToProblem(estimator.problem(), {{t,t}}, residual->lidar_meta, parameter_info);
 
 
     for (auto& pi : parameter_info) {

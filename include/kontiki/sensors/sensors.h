@@ -5,6 +5,8 @@
 #ifndef KONTIKIV2_SENSORS_H
 #define KONTIKIV2_SENSORS_H
 
+#include  <limits>
+
 #include <Eigen/Dense>
 
 #include <entity/entity.h>
@@ -106,6 +108,10 @@ class SensorEntity : public type::Entity<ViewTemplate, MetaType, StoreType> {
     this->set_relative_orientation(Eigen::Quaterniond::Identity());
     this->set_max_time_offset(0.1);
     this->set_time_offset(0);
+
+    this->set_relative_position_minmax_x(false, -std::numeric_limits<double>::max(), std::numeric_limits<double>::max());
+    this->set_relative_position_minmax_y(false, -std::numeric_limits<double>::max(), std::numeric_limits<double>::max());
+    this->set_relative_position_minmax_z(false, -std::numeric_limits<double>::max(), std::numeric_limits<double>::max());
   };
 
   bool RelativeOrientationIsLocked() const {
@@ -132,6 +138,24 @@ class SensorEntity : public type::Entity<ViewTemplate, MetaType, StoreType> {
     time_offset_locked_ = flag;
   }
 
+  void set_relative_position_minmax_x(bool enable, double min_val, double max_val) {
+    relative_position_minmax_x_set_ = enable;
+    relative_position_min_x_ = min_val;
+    relative_position_max_x_ = max_val;
+  }
+
+  void set_relative_position_minmax_y(bool enable, double min_val, double max_val) {
+    relative_position_minmax_y_set_ = enable;
+    relative_position_min_y_ = min_val;
+    relative_position_max_y_ = max_val;
+  }
+
+  void set_relative_position_minmax_z(bool enable, double min_val, double max_val) {
+    relative_position_minmax_z_set_ = enable;
+    relative_position_min_z_ = min_val;
+    relative_position_max_z_ = max_val;
+  }
+
   void AddToProblem(ceres::Problem &problem,
                     time_init_t times,
                     MetaType &meta,
@@ -154,6 +178,21 @@ class SensorEntity : public type::Entity<ViewTemplate, MetaType, StoreType> {
     if (relative_position_locked_)
       problem.SetParameterBlockConstant(pi_pct.data);
 
+    if(relative_position_minmax_x_set_) {
+      problem.SetParameterLowerBound(pi_pct.data, 0, relative_position_min_x_);
+      problem.SetParameterUpperBound(pi_pct.data, 0, relative_position_max_x_);
+    }
+
+    if(relative_position_minmax_y_set_) {
+      problem.SetParameterLowerBound(pi_pct.data, 1, relative_position_min_y_);
+      problem.SetParameterUpperBound(pi_pct.data, 1, relative_position_max_y_);
+    }
+
+    if(relative_position_minmax_z_set_) {
+      problem.SetParameterLowerBound(pi_pct.data, 2, relative_position_min_z_);
+      problem.SetParameterUpperBound(pi_pct.data, 2, relative_position_max_z_);
+    }
+    
     // Time offset is constrained to (-d, d)
     problem.AddParameterBlock(pi_offset.data, pi_offset.size, pi_offset.parameterization);
     problem.SetParameterLowerBound(pi_offset.data, 0, -this->max_time_offset());
@@ -198,6 +237,19 @@ class SensorEntity : public type::Entity<ViewTemplate, MetaType, StoreType> {
   bool relative_position_locked_;
   bool relative_orientation_locked_;
   bool time_offset_locked_;
+
+  bool relative_position_minmax_x_set_;
+  double relative_position_min_x_;
+  double relative_position_max_x_;
+
+  bool relative_position_minmax_y_set_;
+  double relative_position_min_y_;
+  double relative_position_max_y_;
+  
+  bool relative_position_minmax_z_set_;
+  double relative_position_min_z_;
+  double relative_position_max_z_;
+  
   std::unique_ptr<ceres::EigenQuaternionParameterization> orientation_parameterization_;
 };
 
