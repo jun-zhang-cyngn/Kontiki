@@ -43,7 +43,7 @@ class SensorView : public entity::EntityView<T, MetaType> {
     QuaternionMap qmap(this->pstore_->ParameterData(0));
     qmap = q;
   }
-
+  // sensor in imu position
   Vector3Map relative_position() const {
     return Vector3Map(this->pstore_->ParameterData(1));
   }
@@ -179,16 +179,28 @@ class SensorEntity : public type::Entity<ViewTemplate, MetaType, StoreType> {
       problem.SetParameterBlockConstant(pi_pct.data);
 
     if(relative_position_minmax_x_set_) {
+      // std::cout << "relative_position_minmax_x_set:  " 
+      //           << " min = " << relative_position_min_x_
+      //           << " max = " << relative_position_max_x_
+      //           << "\n";
       problem.SetParameterLowerBound(pi_pct.data, 0, relative_position_min_x_);
       problem.SetParameterUpperBound(pi_pct.data, 0, relative_position_max_x_);
     }
 
     if(relative_position_minmax_y_set_) {
+      // std::cout << "relative_position_minmax_y_set:  " 
+      //           << " min = " << relative_position_min_y_
+      //           << " max = " << relative_position_min_y_
+      //           << "\n";
       problem.SetParameterLowerBound(pi_pct.data, 1, relative_position_min_y_);
       problem.SetParameterUpperBound(pi_pct.data, 1, relative_position_max_y_);
     }
 
     if(relative_position_minmax_z_set_) {
+      // std::cout << "relative_position_minmax_z_set:  " 
+      //           << " min = " << relative_position_min_z_
+      //           << " max = " << relative_position_max_z_
+      //           << "\n";
       problem.SetParameterLowerBound(pi_pct.data, 2, relative_position_min_z_);
       problem.SetParameterUpperBound(pi_pct.data, 2, relative_position_max_z_);
     }
