@@ -199,10 +199,10 @@ class SplineView : public TrajectoryView<T, MetaType> {
     }
 
     std::stringstream ss;
-    ss << "No segment found for time t=" << t;
+    ss <<std::fixed << "No segment found for time t=" << t;
     ss << "\nSegments: \n--------------\n";
     for (auto &seg : segments) {
-      ss << "[" << seg->MinTime() << ", " << seg->MaxTime() << ") ";\
+      ss << std::fixed << "[" << seg->MinTime() << ", " << seg->MaxTime() << ") ";\
       ss << "NumKnots: " << seg->NumKnots() << "\n";
       ss << "dt: " << seg->dt() << "\n";
       ss << "NumKnots: " << seg->t0() << "\n";

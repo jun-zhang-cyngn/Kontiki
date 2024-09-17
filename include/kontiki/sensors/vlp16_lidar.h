@@ -45,6 +45,14 @@ class VLP16Entity : public LiDAREntity<ViewTemplate, MetaType, StoreType> {
     meta = this->meta_;
     Base::AddToProblem(problem, times, meta, parameters);
   }
+  void AddExtrinsicsCalibrationToProblem(ceres::Problem &problem,
+                    int extrinsics_type, 
+                    time_init_t times,
+                    MetaType &meta,
+                    std::vector<entity::ParameterInfo<double>> &parameters) const {
+    meta = this->meta_;
+    Base::AddExtrinsicsCalibrationToProblem(problem, extrinsics_type, times, meta, parameters);
+  }
 };
 
 } // namespace internal
